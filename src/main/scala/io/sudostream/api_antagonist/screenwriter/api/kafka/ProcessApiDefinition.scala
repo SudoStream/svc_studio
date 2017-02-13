@@ -1,12 +1,14 @@
 package io.sudostream.api_antagonist.screenwriter.api.kafka
 
+import java.util.UUID
+
 import akka.Done
 import akka.actor.ActorSystem
 import akka.event.LoggingAdapter
 import akka.kafka.scaladsl.{Consumer, Producer}
 import akka.kafka.{ConsumerSettings, ProducerMessage, ProducerSettings, Subscriptions}
 import akka.stream.Materializer
-import io.sudostream.api_antagonist.messages.SpeculativeScreenplay
+import io.sudostream.api_antagonist.messages.{FilmGenre, GreenlitFilm, SpeculativeScreenplay}
 import org.apache.kafka.clients.producer.ProducerRecord
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
@@ -23,7 +25,7 @@ trait ProcessApiDefinition {
 
   def consumerSettings: ConsumerSettings[Array[Byte], SpeculativeScreenplay]
 
-  def producerSettings: ProducerSettings[Array[Byte], SpeculativeScreenplay]
+  def producerSettings: ProducerSettings[Array[Byte], GreenlitFilm]
 
   def logger: LoggingAdapter
 
@@ -32,15 +34,19 @@ trait ProcessApiDefinition {
       .map {
         msg =>
           val speculativeScreenplay = msg.record.value()
+          val greenlitFilm = GreenlitFilm(
+            s"Film: ${speculativeScreenplay.apiTitle}",
+            FilmGenre.ROMANCE,
+            UUID.randomUUID().toString,
+            speculativeScreenplay)
 
-          println("Got the spec screenplay:\n" + speculativeScreenplay.toString)
+          println(s"Greenlit file: ${speculativeScreenplay.toString}")
 
           val msgToCommit = ProducerMessage.Message(
-            new ProducerRecord[Array[Byte], SpeculativeScreenplay]("greenlit-film", speculativeScreenplay),
+            new ProducerRecord[Array[Byte], GreenlitFilm]("greenlit-film", greenlitFilm),
             msg.committableOffset)
-          println("Screenplay : " + speculativeScreenplay)
-          msgToCommit
 
+          msgToCommit
       }
       .runWith(Producer.commitableSink(producerSettings))
   }
