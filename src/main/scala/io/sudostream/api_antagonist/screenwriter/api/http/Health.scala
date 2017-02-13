@@ -14,7 +14,7 @@ trait Health {
   val health : Route = path("health") {
     get {
       complete {
-        val okMessage = "Amateur screenwriter is all okay!\n"
+        val okMessage = "Studio is all okay!\n"
         HttpResponse(StatusCodes.OK, entity = okMessage)
       }
     }

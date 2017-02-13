@@ -6,7 +6,7 @@ import akka.http.scaladsl.Http
 import akka.kafka.{ConsumerSettings, ProducerSettings}
 import akka.stream.{ActorMaterializer, Materializer}
 import com.typesafe.config.{Config, ConfigFactory}
-import io.sudostream.api_antagonist.kafka.serialising.SpeculativeScreenplaySerializer
+import io.sudostream.api_antagonist.kafka.serialising.{SpeculativeScreenplayDeserialiser, SpeculativeScreenplaySerializer}
 import io.sudostream.api_antagonist.screenwriter.api.http.ProcessApiDefinition
 import io.sudostream.api_antagonist.screenwriter.api.kafka
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -14,7 +14,7 @@ import org.apache.kafka.common.serialization.{ByteArrayDeserializer, ByteArraySe
 
 import scala.concurrent.ExecutionContextExecutor
 
-object AmateurScreenwriter extends App with Service
+object Studio extends App with Service
   with ProcessApiDefinition
   with kafka.ProcessApiDefinition {
 
@@ -27,7 +27,7 @@ object AmateurScreenwriter extends App with Service
   override val kafkaConsumerBootServers = config.getString("akka.kafka.consumer.bootstrapservers")
   override val kafkaProducerBootServers = config.getString("akka.kafka.producer.bootstrapservers")
 
-  override val consumerSettings = ConsumerSettings(system, new ByteArrayDeserializer, new StringDeserializer)
+  override val consumerSettings = ConsumerSettings(system, new ByteArrayDeserializer, new SpeculativeScreenplayDeserialiser)
     .withBootstrapServers(kafkaConsumerBootServers)
     .withGroupId(config.getString("akka.kafka.consumer.groupid"))
     .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest")
