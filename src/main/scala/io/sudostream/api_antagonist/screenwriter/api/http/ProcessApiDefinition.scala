@@ -22,7 +22,7 @@ trait ProcessApiDefinition extends Health
   val routes: Route = path("studio" / "speculative-screenplay") {
     (post & entity(as[Multipart.FormData])) { fileData =>
       complete {
-        HttpResponse(StatusCodes.OK, entity = "\nTODO: Add test HTTP API\n\n")
+        HttpResponse(StatusCodes.OK, entity = "\nTODO: Add test Studio HTTP API\n\n")
       }
     }
   } ~ health
